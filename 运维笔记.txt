@@ -5,6 +5,7 @@
 ps -ef|grep memcached
 kill -9 9662
 
+
 3.安装流程
 wget http://pecl.php.net/get/memcache-2.2.7.tgz               
 tar -zxvf memcache-2.2.7.tgz
