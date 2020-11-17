@@ -1,4 +1,4 @@
-一.memcached（不适用于php7以上）
+一.memcached（不适用于php7以上了）
 方法1
 1.启动服务/usr/local/memcached/bin/memcached -d -m 256 -u root -p 11211 -c 1024 –P /tmp/memcached.pid
 2.停止服务
