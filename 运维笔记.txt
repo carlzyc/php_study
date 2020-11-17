@@ -1,0 +1,85 @@
+一.memcached（不适用于php7以上）
+方法1
+1.启动服务/usr/local/memcached/bin/memcached -d -m 256 -u root -p 11211 -c 1024 –P /tmp/memcached.pid
+2.停止服务
+ps -ef|grep memcached
+kill -9 9662
+
+3.安装流程
+wget http://pecl.php.net/get/memcache-2.2.7.tgz               
+tar -zxvf memcache-2.2.7.tgz
+cd memcache-2.2.7
+/usr/local/php/bin/phpize
+./configure --with-php-config=/usr/local/php/bin/php-config
+make && make install
+
+往php.ini加入,具体根据 memcache.so的位置
+extension_dir = "/usr/local/php/lib/php/extensions/no-debug-non-zts-20090626/"
+extension = memcache.so
+
+重启php
+kill -USR2 `cat /usr/local/php/var/run/php-fpm.pid`
+
+检查安装结果,成功输出memcached,安装成功后续启动服务
+/usr/local/php/bin/php -m | grep memcache
+
+./configure --prefix=/usr/local/memcached --with-libevent=/usr/local/libevent
+
+
+二.php
+php-fpm重启：killall php-fpm && /usr/local/php/sbin/php-fpm
+
+三.nginx
+nginx重启：进入nginx可执行目录sbin下，输入命令./nginx -s reload 即可。
+
+四.Linux下全局安装composer
+1.下载composer
+curl -sS https://getcomposer.org/installer | php
+2.将composer.phar文件移动到bin目录以便全局使用composer命令
+mv composer.phar /usr/local/bin/composer
+3.切换到国内源
+composer config -g repo.packagist composer https://packagist.phpcomposer.com
+4.安装laravel
+composer create-project laravel/laravel=5.1.* my_laravel --prefer-dist
+
+如果安装过程中出现Failed to decode zlib stream错误信息
+yum install epel-release
+ 
+rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+ 
+rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+ 
+yum update
+
+五.mysql
+1.修改mysql密码
+UPDATE user SET password=PASSWORD('123456') WHERE user='root';
+2.在配置文件加入skip-grant-tables,可以跳过密码验证(配置文件在/etc/my.conf)
+
+3.mysql开启远程访问权限
+mysql -u root -p
+
+use mysql；
+
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '123456'；   这里的123456为你给新增权限用户设置的密码，%代表所有主机，也可以具体到你的主机ip地址
+
+flush privileges;   这句表示从mysql数据库的grant表中重新加载权限数据
+
+select  *  from user；   查询是否设置成功
+
+如果还是不能访问
+
+查看mysql是否只允许本地127.0.0.1访问
+
+cat /etc/my.cnf
+
+bind-address=127.0.0.1    #去掉这一行
+
+或者去掉
+
+#skip-networking
+
+ 重启mysql：service mysqld restart
+
+
+

@@ -1,0 +1,179 @@
+一. nginx的安装
+1.安装编译工具及库文件
+yum -y install make zlib zlib-devel gcc-c++ libtool  openssl openssl-devel
+
+2.安装 PCRE, PCRE 作用是让 Nginx 支持 Rewrite 功能。
+wget http://downloads.sourceforge.net/project/pcre/pcre/8.35/pcre-8.35.tar.gz
+tar zxvf pcre-8.35.tar.gz
+cd pcre-8.35
+./configure
+make && make install
+查看是否安装成功(查看版本)
+pcre-config --version
+
+3.安装nginx
+下载nginx
+wget http://nginx.org/download/nginx-1.6.2.tar.gz
+tar zxvf nginx-1.6.2.tar.gz
+cd nginx-1.6.2
+./configure --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module --with-pcre=/huanjing/pcre-8.35(这个路径取决于pcre的原文件)
+make
+make install
+指定配置文件位置
+/usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf
+
+二.php安装
+先下载
+然后解压
+tar -zxvf php-7.1.31.tar.gz
+预编译
+./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --enable-mbstring --enable-ftp --with-gd --with-jpeg-dir=/usr --with-png-dir=/usr --with-mysql=mysqlnd --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd --without-pear  --disable-phar --enable-sockets --with-freetype-dir=/usr --with-zlib --with-libxml-dir=/usr --with-xmlrpc --enable-zip --enable-fpm --enable-xml --enable-sockets --with-gd --with-zlib --with-iconv --enable-zip --with-freetype-dir=/usr/lib/ --enable-soap --enable-pcntl --enable-cli --with-curl
+(以下编译php7.4)
+./configure --prefix=/usr/local/php --with-config-file-path=/usr/local/php/etc --enable-fpm --with-fpm-user=www --with-fpm-group=www --with-pear --with-curl --with-png-dir --with-freetype --with-iconv --with-mhash --with-zlib --with-xmlrpc --with-xsl --with-openssl --with-mysqli --with-pdo-mysql --disable-debug --with-zip --enable-sockets --enable-inline-optimization --enable-xml --enable-ftp --enable-exif --enable-bcmath --enable-calendar --enable-shmop --enable-dba --enable-sysvsem --enable-sysvshm --enable-sysvmsg
+
+./configure --prefix=/usr/local/php --with-apxs2=/usr/local/apache2/bin/apxs  --with-config-file-path=/usr/local/php/etc --enable-mbstring --enable-ftp --with-gd --with-jpeg-dir=/usr --with-png-dir=/usr --with-mysql=mysqlnd --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd --without-pear  --disable-phar --enable-sockets --with-freetype-dir=/usr --with-zlib --with-libxml-dir=/usr --with-xmlrpc --enable-zip --enable-fpm --enable-xml --enable-sockets --with-gd --with-zlib --with-iconv --enable-zip --with-freetype-dir=/usr/lib/ --enable-soap --enable-pcntl --enable-cli 
+make
+make install
+
+配置php相关文件
+1）配置php.ini，这是php的配置文件：cp php.ini-development /usr/local/php/etc/php.ini
+2）配置php-fpm.conf，这是php-fpm配置文件：cp /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf
+3）配置www.conf，配置用户的文件：cp /usr/local/php/etc/php-fpm.d/www.conf.default  /usr/local/php/etc/php-fpm.d/www.conf
+
+4）将php-fpm启动文件复制到init.d文件夹中一个方便启动php：cp -R sbin/php-fpm /etc/init.d/php-fpm
+启动
+/etc/init.d/php-fpm
+
+配置web专用的组和用户
+添加www用户组：groupadd www
+添加www用户组下的用户www：useradd -g www www
+更改www.conf配置
+将user = nobody的注释去掉，加入nobody改成上面配置的www用户
+将group = nobody的注释去掉，加入nobody改成上面配置的www用户组
+
+配置nginx解析php文件
+头部user=www
+location ~ \.php$ {
+            root           /home/;
+            fastcgi_pass   127.0.0.1:9000;
+            fastcgi_index  index.php;
+            fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+            include        fastcgi_params;
+        }
+
+配置pathinfo模式(修改第一行和加入第六行)
+location ~ \.php(.*)$ { # 正则匹配.php后的pathinfo部分
+root html;
+fastcgi_pass 127.0.0.1:9000;
+fastcgi_index index.php;
+fastcgi_param SCRIPT_FILENAME $DOCUMENT_ROOT$fastcgi_script_name;
+fastcgi_param PATH_INFO $1; # 把pathinfo部分赋给PATH_INFO变量
+include fastcgi_params;
+}
+重启nginx
+
+
+三mysql安装
+二、安装
+
+1、安装到/usr/local/mysql路径下
+
+进入/usr/local: cd /usr/local
+
+解压：tar -zxvf mysql-5.7.25-linux-glibc2.12-x86_64.tar.gz
+
+修改文件夹名称：mv mysql-5.7.25-linux-glibc2.12-x86_64 /usr/local/mysql
+
+2、新建data目录
+
+命令：mkdir /usr/local/mysql/data
+
+3、新建mysql用户组及mysql用户
+
+命令：groupadd mysql //新建用户组
+
+命令：useradd mysql -g mysql //新建用户
+
+4、将/usr/local/mysql的所有者及所属组改为mysql
+chown -R mysql.mysql /usr/local/mysql
+
+5、配置
+
+命令：/usr/local/mysql/bin/mysql_install_db --user=mysql --basedir=/usr/local/mysql/ --datadir=/usr/local/mysql/data
+
+6、编辑/etc/my.cnf
+
+[mysqld]
+
+datadir=/usr/local/mysql/data
+
+basedir=/usr/local/mysql
+
+socket=/tmp/mysql.sock
+
+user=mysql
+
+port=3306
+
+character-set-server=utf8
+
+// 取消密码验证
+
+skip-grant-tables
+
+// Disabling symbolic-links is recommended to prevent assorted security risks
+
+symbolic-links=0
+
+
+[mysqld_safe]
+
+log-error=/var/log/mysqld.log
+
+pid-file=/var/run/mysqld/mysqld.pid
+
+7、开启服务
+
+命令：cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysql //将mysql加入服务
+
+命令：chkconfig mysql on //开机自动启动
+
+命令：service mysql start //开启mysql服务
+
+8、设置密码
+
+命令：/usr/local/mysql/bin/mysql -u root -p //在my.cnf中配置了取消密码验证，此处密码任意输入
+
+命令：use mysql; //操作mysql数据库
+
+命令：update user set authentication_string=password('你的密码') where user='root'; //修改密码
+
+命令：flush privileges;
+
+命令：exit; //退出
+
+9、将/etc/my.cnf中的skip-grant-tables删除
+
+10、允许远程连接
+
+命令：/usr/local/mysql/bin/mysql -u root -p //登录
+
+命令：use mysql;
+
+命令：update user set host=’%’ where user = ‘root’;
+
+命令：flush privileges;
+
+命令：eixt;
+
+
+
+
+
+
+
+
+
+
+
+

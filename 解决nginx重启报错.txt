@@ -1,0 +1,11 @@
+错误：nginx: [alert] kill(8100, 1) failed (3: No such process)
+1.查找nginx的配置文件
+find / -name nginx.conf 
+执行以上命令后：
+/lnmp1.5/conf/nginx.conf
+/usr/local/nginx/conf/nginx.conf
+/nginx-1.17.8/conf/nginx.conf
+
+2.使用nginx -c的参数指定nginx.conf文件的位置
+/usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf
+完美解决！
