@@ -1,0 +1,15 @@
+1.nginx进程分为master主进程和worker工作进程，nginx的平滑重启通过信号HUB控制。
+
+reload 时，旧的worker进程和新的worker进程是共存的，旧的worker进程在处理完请求后会被杀掉。而 restart 时，
+不会存在新旧共存的情况（master，worker 都是）。如果有请求未完成时。旧的master，worker 会有一段时间处理请求（超时时间）。然后被杀掉，
+创建新的master，worker 进程。所以 restart 的时候nginx 会有卡顿的现象。
+大致的平滑重启过程为： 
+1. master使用新配置 fork出n-1个worker及新master 
+2. 新worker处理新情求，旧worker执行完退出 
+3. master重新加载配置，期间使用新master接管服务 
+4. master加载配置完毕，新master切换为worker工作模式 平滑重启完，master进程号并不会发生变化。
+
+通俗说法:
+Nginx的进程分为master主进程和work工作进程，master进程主要管理事件信号接受和分发，所有的请求处理都由work进程处理并返回结 果，
+Nginx的平滑重启或重载配置文件等升级，首先是向master发送重启或重载配置文件信号，然后master告诉所有的work进程不再接受新的 请求，
+然后master另起新的work进程，最后告诉旧的work进程可以光荣退出了。

@@ -1,0 +1,7 @@
+进程包含 master 进程和 worker 进程两种进程。
+master 进程只有一个，负责监听端口，接收来自 Web Server 的请求，而 worker 进程则一般有多个(具体数量根据实际需要配置)，
+每个进程内部都嵌入了一个 PHP 解释器，是 PHP 代码真正执行的地方。
+
+快速重启和平滑重启
+在有请求未完成的时。当 restart，请求会直接断掉。reload 平滑重启的条件是在php-fpm.conf文件中设置process_control_timeout参数 (这个参数默认值为0)，
+这个参数表示在php-fpm reload 后，旧的worker的最大存活时间。
