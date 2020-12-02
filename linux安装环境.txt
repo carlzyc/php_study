@@ -11,7 +11,7 @@ cd pcre-8.35
 ./configure
 make && make install
 查看是否安装成功(查看版本)
-pcre-config --version
+pcre-config --version pcre-config --version
 
 2.安装 PCRE, PCRE 作用是让 Nginx 支持 Rewrite 功能。
 wget http://downloads.sourceforge.net/project/pcre/pcre/8.35/pcre-8.35.tar.gz
