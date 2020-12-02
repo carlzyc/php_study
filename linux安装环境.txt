@@ -4,11 +4,8 @@ yum -y install make zlib zlib-devel gcc-c++ libtool  openssl openssl-devel
 
 
 
-<<<<<<< HEAD
+
 2.安装 PCRE, PCRE 作用是让 Nginx 支持 Rewrite 嘻嘻。
-=======
-2.安装 PCRE, PCRE 作用是让 Nginx 支持 Rewrite 哈哈。
->>>>>>> a3f58ee0813fefa782b3e83f3aeb7fa17eed8afa
 wget http://downloads.sourceforge.net/project/pcre/pcre/8.35/pcre-8.35.tar.gz
 tar zxvf pcre-8.35.tar.gz
 cd pcre-8.35
